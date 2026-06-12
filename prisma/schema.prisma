@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum PackageStatus {
+  to_be_picked_up
+  picked_up
+  in_transit
+  out_for_delivery
+  delivered
+  delayed
+}
+
+enum PaymentMethod {
+  cash
+  card
+  online
+}
+
+// ─── Models ──────────────────────────────────────────────
+
+model Region {
+  id         String   @id @default(uuid())
+  regionCode String   @map("region_code")
+  regionName String   @map("region_name")
+  createdAt  DateTime @default(now()) @map("created_at")
+  packages Package[]
+  @@map("regions")
+}
+
+model Package {
+  id              String        @id @default(uuid())
+  trackingId      String        @unique @map("tracking_id")
+  senderName      String        @map("sender_name")
+  senderAddress   String        @map("sender_address")
+  receiverName    String        @map("receiver_name")
+  receiverAddress String        @map("receiver_address")
+  weightKg        Float         @map("weight_kg")
+  currentStatus   PackageStatus @default(to_be_picked_up) @map("current_status")
+  currentLocation String?       @map("current_location")
+  delayReason     String?       @map("delay_reason")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  // Foreign key → Region
+  regionId String @map("region_id")
+  region   Region @relation(fields: [regionId], references: [id])
+
+  // One package has one sale
+  sale Sale?
+
+  @@map("packages")
+}
+
+model Sale {
+  id            String        @id @default(uuid())
+  billNumber    String        @unique @map("bill_number")
+  amount        Float
+  paymentMethod PaymentMethod @map("payment_method")
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  // Foreign key → Package (one-to-one)
+  packageId String  @unique @map("package_id")
+  package   Package @relation(fields: [packageId], references: [id])
+
+  @@map("sales")
+}
