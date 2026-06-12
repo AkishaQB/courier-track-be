@@ -1,0 +1,21 @@
+services:
+  # PostgreSQL runs in a container, exposes port 5432 to your host
+  postgres:
+    image: postgres:16-alpine
+    container_name: ak-logistics-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aklogistics
+      POSTGRES_PASSWORD: aklogistics
+      POSTGRES_DB: courier_collection_db
+    ports:
+      # host_port:container_port
+      # Using 5433 since 5432 is already taken by infracore-postgres
+      # Your app connects to localhost:5433
+      - "5433:5432"
+    volumes:
+      # Named volume — data persists even if container is removed
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
