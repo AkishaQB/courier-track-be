@@ -31,7 +31,7 @@ enum PaymentMethod {
 
 model Region {
   id         String   @id @default(uuid())
-  regionCode String   @map("region_code")
+  regionCode String   @unique @map("region_code")
   regionName String   @map("region_name")
   createdAt  DateTime @default(now()) @map("created_at")
   packages Package[]
