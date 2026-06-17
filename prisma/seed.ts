@@ -2,6 +2,7 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import type { Prisma } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
+import bcrypt from "bcrypt";
 import "dotenv/config";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -29,6 +30,22 @@ async function main() {
       `  ✅ ${result.regionCode} — ${result.regionName} (${result.id})`,
     );
   }
+
+  // ─── Seed default staff user ─────────────────────────────
+  console.log("🌱 Seeding default user...");
+
+  const hashedPassword = await bcrypt.hash("admin123", 10);
+  const user = await prisma.user.upsert({
+    where: { email: "admin@couriertrack.com" } as Prisma.UserWhereUniqueInput,
+    update: {},
+    create: {
+      email: "admin@couriertrack.com",
+      password: hashedPassword,
+      name: "Admin Staff",
+      role: "staff",
+    },
+  });
+  console.log(`  ✅ ${user.email} — ${user.name} (${user.id})`);
 
   console.log("🌱 Seeding complete!");
 }
