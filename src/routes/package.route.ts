@@ -14,7 +14,7 @@ import {
 const router = Router();
 
 // POST /api/packages — Create a new package + sale
-router.post("/", validate({ body: createPackageSchema }), createPackageHandler);
+router.post("/create", validate({ body: createPackageSchema }), createPackageHandler);
 
 // GET /api/packages — List packages (filterable, paginated)
 router.get(

@@ -31,8 +31,14 @@ export function validate(schemas: ValidationSchemas) {
         return;
       }
 
-      // Replace with parsed values (applies defaults, coercion, transforms)
-      (req as any)[target] = result.data;
+      // In Express 5, req.query and req.params are read-only getters.
+      // Direct assignment (req.query = ...) throws a TypeError.
+      // Object.defineProperty overrides the getter with a plain value.
+      Object.defineProperty(req, target, {
+        value: result.data,
+        writable: true,
+        configurable: true,
+      });
     }
 
     next();
