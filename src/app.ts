@@ -3,6 +3,7 @@ import cors from "cors";
 import packageRoutes from "./routes/package.route";
 import dashboardRoutes from "./routes/dashboard.route";
 import trackingRoutes from "./routes/tracking.route";
+import regionRoutes from "./routes/region.route";
 import { errorHandler } from "./middlewares/errorHandler";
 
 const app = express();
@@ -30,6 +31,7 @@ app.get("/", (_, res) => {
 app.use("/api/packages", packageRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/tracking", trackingRoutes);
+app.use("/api/regions", regionRoutes);
 
 // ─── Error Handler (must be AFTER all routes) ────────────
 app.use(errorHandler);
