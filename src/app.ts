@@ -1,10 +1,20 @@
 import express from "express";
+import cors from "cors";
 import packageRoutes from "./routes/package.route";
 import dashboardRoutes from "./routes/dashboard.route";
 import trackingRoutes from "./routes/tracking.route";
 import { errorHandler } from "./middlewares/errorHandler";
 
 const app = express();
+
+// ─── CORS ────────────────────────────────────────────────
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:5174"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 // Parse JSON request bodies (needed for POST /api/packages)
 app.use(express.json());

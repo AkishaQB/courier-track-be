@@ -1,6 +1,7 @@
 import { PrismaClient } from "../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
+import "dotenv/config";
 
 // Singleton pattern:
 // During development, ts-node-dev restarts your app on every file change.
