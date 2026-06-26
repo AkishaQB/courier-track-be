@@ -47,6 +47,22 @@ async function main() {
   });
   console.log(`  ✅ ${user.email} — ${user.name} (${user.id})`);
 
+  // ─── Seed default logistics user ─────────────────────────
+  console.log("🌱 Seeding default logistics user...");
+
+  const hashedLogisticsPassword = await bcrypt.hash("logistics123", 10);
+  const logisticsUser = await prisma.user.upsert({
+    where: { email: "logistics@couriertrack.com" } as Prisma.UserWhereUniqueInput,
+    update: {},
+    create: {
+      email: "logistics@couriertrack.com",
+      password: hashedLogisticsPassword,
+      name: "Logistics Operator",
+      role: "logistics",
+    },
+  });
+  console.log(`  ✅ ${logisticsUser.email} — ${logisticsUser.name} (${logisticsUser.id})`);
+
   console.log("🌱 Seeding complete!");
 }
 

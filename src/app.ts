@@ -6,6 +6,7 @@ import dashboardRoutes from "./routes/dashboard.route";
 import trackingRoutes from "./routes/tracking.route";
 import regionRoutes from "./routes/region.route";
 import { authenticate } from "./middlewares/auth";
+import { requireRole } from "./middlewares/requireRole";
 import { errorHandler } from "./middlewares/errorHandler";
 
 const app = express();
@@ -22,6 +23,9 @@ app.use(
 // Parse JSON request bodies (needed for POST /api/packages)
 app.use(express.json());
 
+// Shorthand: front-office routes always require both middlewares in sequence
+const staffAuth = [authenticate, requireRole("staff", "admin")];
+
 // Health-check route
 app.get("/", (_, res) => {
   res.json({
@@ -33,10 +37,12 @@ app.get("/", (_, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/tracking", trackingRoutes);
 
-// ─── Protected Routes (require login) ───────────────────
-app.use("/api/packages", authenticate, packageRoutes);
-app.use("/api/dashboard", authenticate, dashboardRoutes);
-app.use("/api/regions", authenticate, regionRoutes);
+// ─── Protected Routes (staff | admin only) ──────────────
+// Front-office routes require a JWT whose role is "staff"
+// or "admin". A "logistics" JWT is rejected with 403.
+app.use("/api/packages", ...staffAuth, packageRoutes);
+app.use("/api/dashboard", ...staffAuth, dashboardRoutes);
+app.use("/api/regions", ...staffAuth, regionRoutes);
 
 // ─── Error Handler (must be AFTER all routes) ────────────
 app.use(errorHandler);

@@ -81,7 +81,7 @@ model User {
   email     String   @unique
   password  String                        // bcrypt hash
   name      String
-  role      String   @default("staff")    // "staff" | "admin"
+  role      String   @default("staff")    // "staff" | "admin" | "logistics"
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("users")
