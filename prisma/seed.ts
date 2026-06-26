@@ -34,7 +34,10 @@ async function main() {
   // ─── Seed default staff user ─────────────────────────────
   console.log("🌱 Seeding default user...");
 
-  const hashedPassword = await bcrypt.hash("admin123", 10);
+  const hashedPassword = await bcrypt.hash(
+    process.env.SEED_ADMIN_PASSWORD ?? "admin123",
+    10,
+  );
   const user = await prisma.user.upsert({
     where: { email: "admin@couriertrack.com" } as Prisma.UserWhereUniqueInput,
     update: {},
@@ -50,7 +53,10 @@ async function main() {
   // ─── Seed default logistics user ─────────────────────────
   console.log("🌱 Seeding default logistics user...");
 
-  const hashedLogisticsPassword = await bcrypt.hash("logistics123", 10);
+  const hashedLogisticsPassword = await bcrypt.hash(
+    process.env.SEED_LOGISTICS_PASSWORD ?? "logistics123",
+    10,
+  );
   const logisticsUser = await prisma.user.upsert({
     where: { email: "logistics@couriertrack.com" } as Prisma.UserWhereUniqueInput,
     update: {},
