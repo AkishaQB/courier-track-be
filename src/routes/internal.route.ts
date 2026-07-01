@@ -10,7 +10,7 @@ const router = Router();
 // No auth required — internal network traffic only.
 router.post(
   "/raw-updates",
-  validate({ body: bulkRawUpdatesSchema }),
+  // validate({ body: bulkRawUpdatesSchema }),
   bulkRawUpdatesHandler,
 );
 

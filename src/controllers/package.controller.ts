@@ -71,6 +71,7 @@ export async function bulkRawUpdatesHandler(
 ): Promise<void> {
   try {
     const { updates } = req.body;
+    console.log('updates', updates)
     const result = await saveRawUpdates(updates);
     res.status(201).json({ success: true, count: result.count });
   } catch (error) {
