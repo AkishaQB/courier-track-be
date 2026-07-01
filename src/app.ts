@@ -5,7 +5,7 @@ import packageRoutes from "./routes/package.route";
 import dashboardRoutes from "./routes/dashboard.route";
 import trackingRoutes from "./routes/tracking.route";
 import regionRoutes from "./routes/region.route";
-import webhookRoutes from "./routes/webhook.route";
+import internalRoutes from "./routes/internal.route";
 import { authenticate } from "./middlewares/auth";
 import { requireRole } from "./middlewares/requireRole";
 import { errorHandler } from "./middlewares/errorHandler";
@@ -21,15 +21,6 @@ app.use(
   }),
 );
 
-// ─── Webhook Route (T4/T5) ───────────────────────────────
-// IMPORTANT: mounted BEFORE express.json() with express.raw() so the raw
-// request Buffer is preserved for HMAC signature verification.
-// Once express.json() runs, the raw bytes are discarded and cannot be recovered.
-app.use(
-  "/api/webhooks",
-  express.raw({ type: "application/json" }),
-  webhookRoutes,
-);
 
 // Parse JSON request bodies (needed for POST /api/packages)
 app.use(express.json());
@@ -47,6 +38,7 @@ app.get("/", (_, res) => {
 // ─── Public Routes (no auth required) ────────────────────
 app.use("/api/auth", authRoutes);
 app.use("/api/tracking", trackingRoutes);
+app.use("/api/internal", internalRoutes);
 
 // ─── Protected Routes (staff | admin only) ──────────────
 // Front-office routes require a JWT whose role is "staff"
