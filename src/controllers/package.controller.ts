@@ -3,6 +3,7 @@ import {
   createPackage,
   getAllPackages,
   getPackageByTrackingId,
+  saveRawUpdates,
 } from "../services/package.service";
 
 /**
@@ -58,6 +59,20 @@ export async function getPackageByTrackingIdHandler(
     const { trackingId } = req.params;
     const currentPackage = await getPackageByTrackingId(trackingId as string);
     res.status(200).json(currentPackage);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function bulkRawUpdatesHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { updates } = req.body;
+    const result = await saveRawUpdates(updates);
+    res.status(201).json({ success: true, count: result.count });
   } catch (error) {
     next(error);
   }

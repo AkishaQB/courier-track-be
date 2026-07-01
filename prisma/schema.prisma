@@ -86,3 +86,13 @@ model User {
 
   @@map("users")
 }
+
+model RawPackageUpdate {
+  id          String    @id @default(uuid())
+  payload     Json
+  processed   Boolean   @default(false)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  processedAt DateTime? @map("processed_at")
+
+  @@map("raw_package_updates")
+}

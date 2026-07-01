@@ -34,3 +34,15 @@ export const getPackagesQuerySchema = z.object({
 export const trackingIdParamSchema = z.object({
   trackingId: z.string().uuid("Invalid tracking ID format"),
 });
+
+export const bulkRawUpdatesSchema = z.object({
+  updates: z.array(
+    z.object({
+      trackingId: z.string().uuid(),
+      status: z.string(),
+      regionCode: z.string().optional(),
+      notes: z.string().optional(),
+      timestamp: z.string().datetime().optional(),
+    })
+  ),
+});

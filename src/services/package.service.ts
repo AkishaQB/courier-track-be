@@ -24,7 +24,7 @@ export async function createPackage(
 
   // prisma.$transaction runs both operations in a single database transaction.
   // If the Sale insert fails, the Package insert is also rolled back.
-  const [newPackage] = await prisma.$transaction(async (tx) => {
+  const [newPackage, regionCode] = await prisma.$transaction(async (tx) => {
     const pkg = await tx.package.create({
       data: {
         trackingId,
@@ -47,8 +47,44 @@ export async function createPackage(
       },
     });
 
-    return [pkg];
+    const region = await tx.region.findUnique({
+      where: { id: input.regionId },
+      select: { regionCode: true },
+    });
+
+    return [pkg, region?.regionCode || "CENTRAL"] as const;
   });
+
+  // Fire webhook asynchronously to Logistics BE
+  // We don't await this to keep the API response fast.
+  const webhookUrl = process.env.COURIER_LOGISTICS_WEBHOOK_URL || "http://localhost:3002/api/packages/webhook";
+  
+  void (async () => {
+    try {
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          trackingId: newPackage.trackingId,
+          senderName: newPackage.senderName,
+          senderAddress: newPackage.senderAddress,
+          receiverName: newPackage.receiverName,
+          receiverAddress: newPackage.receiverAddress,
+          weightKg: newPackage.weightKg,
+          regionCode,
+        }),
+      });
+      if (!response.ok) {
+        console.error(`[webhook-creation] Logistics BE returned status ${response.status}`);
+      } else {
+        console.log(`[webhook-creation] Package ${newPackage.trackingId} successfully registered in Logistics BE`);
+      }
+    } catch (error) {
+      console.error("[webhook-creation] Failed to call Logistics BE webhook:", error);
+    }
+  })();
 
   return {
     trackingId: newPackage.trackingId,
@@ -96,5 +132,14 @@ export async function getPackageByTrackingId(trackingId: string) {
   return prisma.package.findUnique({
     where: { trackingId },
     include: { sale: true, region: true },
+  });
+}
+
+export async function saveRawUpdates(updates: any[]) {
+  return prisma.rawPackageUpdate.createMany({
+    data: updates.map((upd) => ({
+      payload: upd,
+      processed: false,
+    })),
   });
 }
